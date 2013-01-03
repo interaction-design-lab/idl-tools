@@ -1,0 +1,11 @@
+{
+    "db": {
+        "hostname": "http://myhost.net",
+        "dbname": "mydbname",
+        "username": "myuser",
+        "password": "mypass"
+    },
+    "user_ids": [
+        "6", "7"
+    ]
+}
