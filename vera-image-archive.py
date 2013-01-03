@@ -3,16 +3,25 @@
 """
 Phil Adams http://philadams.net
 
-As always, `-h` is your friend. Given a db details file with
-authentication credentials and a list of `user_id` values, locally
-archive the images.
+As always, `-h` is your friend.
+
+Given a .csv file of VERA+ statuses, locally archive all default-sized images.
+
+TODO: handle network / image saving errors
+TODO: intelligent summary log, including errors list
 """
 
 import logging
+import os
+from StringIO import StringIO
+import csv
 import json
+import time
+
 from pprint import pprint
 
-import MySQLdb
+import requests
+from PIL import Image
 
 
 def main():
@@ -23,7 +32,8 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-v', '--verbose', action='count', default=0)
     group.add_argument('-q', '--quiet', action='store_true')
-    parser.add_argument('dbdeets', help='db credentials and user_id values')
+    parser.add_argument('config', help='config params (json)')
+    parser.add_argument('statuses', help='veraplus statuses (csv)')
     args = parser.parse_args()
 
     # logging config
@@ -34,26 +44,36 @@ def main():
         log_level = logging.DEBUG
     logging.basicConfig(level=log_level)
 
-    # connect to the db
-    with open(args.dbdeets) as f:
-        dbdeets = json.load(f)
-    conn = MySQLdb.connect(host=dbdeets['db']['hostname'],
-                           user=dbdeets['db']['username'],
-                           passwd=dbdeets['db']['password'],
-                           db=dbdeets['db']['dbname'])
-    cursor = conn.cursor(MySQLdb.cursors.DictCursor)
-    print cursor
+    # load config params
+    with open(args.config) as f:
+        config = json.load(f)
+        config['outdir'] = config.get('outdir', './gen')
 
-    # SELECT STATEMENT
-    users_q= """
-        select *
-        from users u
-        where
-            u.study_id>=%d""" % (100)
-    cursor.execute(users_q)
-    users = cursor.fetchall()
-    print len(users)
-    print users[0]
+    # load all the statuses into memory
+    with open(args.statuses, 'rU') as f:
+        statuses = [row for row in csv.reader(f)]
+
+    fields = statuses.pop(0)  # header row
+    for row in statuses:
+        #sys.stdout.write('\rprocessing row %d...' % i)
+        #sys.stdout.flush()
+
+        status = dict(zip(fields, row))
+        status['img_uri'] = '%s%s' % (config['urlbase'], status['image_path'])
+
+        req = requests.get(status['img_uri'])
+        img = Image.open(StringIO(req.content))
+
+        imgdir = '%s/%s' % (config['outdir'], status['user_id'])
+        if not os.path.exists(imgdir):
+            os.makedirs(imgdir)
+        img.save('%s/u%s_s%s.jpg' % (imgdir,
+                                 status['user_id'],
+                                 status['status_id']))
+
+        time.sleep(0.1)
+        break
+
 
 if '__main__' == __name__:
     main()

@@ -14,8 +14,7 @@ our VERA+ platform.
 vera-image-archive.py
 ---------------------
 
-As always, `-h` is your friend. Given a db details file with
-authentication credentials and a list of `user_id` values, locally
-archive the images.
+As always, `-h` is your friend.
 
-TODO: archive a per-user images meta-data file?
+Given a .csv file of VERA+ statuses, locally archive all default-sized
+images.

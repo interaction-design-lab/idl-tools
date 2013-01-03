@@ -1,0 +1,2 @@
+"status_id","user_id","study_id","in_positive_grp","did_it","healthiness","pam_photo_id","pam_cell_id","pam_pa","pam_valence","pam_arousal","stress","lat","lon","created_utc","tz_offset","image_path","photo_created_utc","photo_lat","photo_lon"
+1706,230,14,0,1,2,36,12,14,4,2,2,42.4536,-76.4795,"2012-10-08 18:05:40",-4,"/img/user-uploads/default/230/6c637f6d2f2596783e0879130ff0baeb37394f9b.jpg","0000-00-00 00:00:00","NULL","NULL"
