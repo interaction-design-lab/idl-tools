@@ -31,6 +31,7 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-v', '--verbose', action='count', default=0)
     group.add_argument('-q', '--quiet', action='store_true')
+    group.add_argument('--outdir', help='dir in which to archive images')
     parser.add_argument('config', help='config params (json)')
     parser.add_argument('statuses', help='veraplus statuses (csv)')
     args = parser.parse_args()
@@ -38,7 +39,7 @@ def main():
     # load config params
     with open(args.config) as f:
         config = json.load(f)
-        config['outdir'] = config.get('outdir', './gen')
+        config['outdir'] = args.outdir or config.get('outdir', './gen')
         if not os.path.exists(config['outdir']):
             os.makedirs(config['outdir'])
 
